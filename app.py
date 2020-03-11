@@ -3,8 +3,10 @@ from flask_pymongo import PyMongo
 from bson.json_util import dumps
 import json
 from flask import request
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
 app.config["MONGO_URI"] = "mongodb://localhost:27017/work-watch"
 mongo = PyMongo(app)
@@ -28,4 +30,4 @@ def get_projects():
 def create_project(body):
     body = json.loads(body)
     result = mongo.db.projects.insert_one(body)
-    return {}
+    return { "name": body["name"], "color": body["color"] }
