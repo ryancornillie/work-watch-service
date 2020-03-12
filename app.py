@@ -5,6 +5,7 @@ import json
 from flask import request
 from flask_cors import CORS
 from datetime import datetime
+import uuid
 
 app = Flask(__name__)
 CORS(app)
@@ -30,6 +31,7 @@ def get_projects():
 
 def create_project(body):
     body = json.loads(body)
+    body["id"] = uuid.uuid4()
     result = mongo.db.projects.insert_one(body)
     return { "name": body["name"], "color": body["color"], "id": str(result) }
 
@@ -46,7 +48,8 @@ def create_record(body):
     record_entry = {
         "project_id" : body["projectId"],
         "start_time" : datetime.now(),
-        "end_time" : None
+        "end_time" : None,
+        "id" : uuid.uuid4()
     }
     print("entry", record_entry)
     result = mongo.db.records.insert_one(record_entry).inserted_id
@@ -56,6 +59,6 @@ def create_record(body):
 def update_record(body):
     body = json.loads(body)
     body["end_time"] = datetime.now()
-    result = mongo.db.records.update_one({"_id": body["_id"]}, { "$set": { "end_time": body["end_time"]} })
+    result = mongo.db.records.update_one({"id": body["id"]}, { "$set": { "end_time": body["end_time"]} })
     return body
 
