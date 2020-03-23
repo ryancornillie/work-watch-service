@@ -72,5 +72,9 @@ def update_record(body):
     body = json.loads(body)
     body["end_time"] = datetime.now()
     result = mongo.db.records.update_one({"id": body["id"]}, { "$set": { "end_time": body["end_time"]} })
+    
+    if result:
+        update_current_project_record(body["project_id"], None)  
+
     return body
 
