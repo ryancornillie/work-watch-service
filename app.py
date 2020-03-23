@@ -32,8 +32,13 @@ def get_projects():
 def create_project(body):
     body = json.loads(body)
     body["id"] = str(uuid.uuid4())
+    body["record_id"] = None
     result = mongo.db.projects.insert_one(body)
     return { "name": body["name"], "color": body["color"], "id": body["id"]}
+
+def update_current_project_record(project_id, record_id):
+    result = mongo.db.projects.update_one({"id": project_id},
+     { "$set": { "record_id": record_id }})
 
 
 @app.route("/records", methods=['GET', 'POST', 'PATCH'])
@@ -53,6 +58,13 @@ def create_record(body):
     }
     print("entry", record_entry)
     result = mongo.db.records.insert_one(record_entry).inserted_id
+
+    if (result):
+        #TODO: this will be handled in seperate put request
+        update_current_project_record(record_entry["project_id"], record_entry["id"])   
+
+    #TODO: handle error here
+
     return { "project_id": record_entry["project_id"],
      "start_time": record_entry["start_time"], "id": record_entry["id"] }
 
