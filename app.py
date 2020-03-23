@@ -31,9 +31,9 @@ def get_projects():
 
 def create_project(body):
     body = json.loads(body)
-    body["id"] = uuid.uuid4()
+    body["id"] = str(uuid.uuid4())
     result = mongo.db.projects.insert_one(body)
-    return { "name": body["name"], "color": body["color"], "id": str(result) }
+    return { "name": body["name"], "color": body["color"], "id": body["id"]}
 
 
 @app.route("/records", methods=['GET', 'POST', 'PATCH'])
@@ -46,15 +46,15 @@ def records():
 def create_record(body):
     body = json.loads(body)
     record_entry = {
-        "project_id" : body["projectId"],
+        "project_id" : body["project_id"],
         "start_time" : datetime.now(),
         "end_time" : None,
-        "id" : uuid.uuid4()
+        "id" : str(uuid.uuid4())
     }
     print("entry", record_entry)
     result = mongo.db.records.insert_one(record_entry).inserted_id
     return { "project_id": record_entry["project_id"],
-     "start_time": record_entry["start_time"], "id": str(result) }
+     "start_time": record_entry["start_time"], "id": record_entry["id"] }
 
 def update_record(body):
     body = json.loads(body)
